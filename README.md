@@ -57,4 +57,15 @@ MIT License — silakan gunakan, modifikasi, dan distribusikan dengan bebas.
 
 ---
 
+## 📝 Pembaruan Terbaru
+
+- Menu utama dan semua tombol back/home kini konsisten: "🏠 Kembali ke Home" dan selalu menampilkan semua kategori.
+- Menu tambahan (tools tambahan) kini tampil dengan editMessageText, tidak membuat pesan baru.
+- Semua reply tombol home/back di seluruh fitur sudah seragam dan terintegrasi.
+- Fitur lirik lagu kini lebih praktis: cukup ketik /lirik <judul>, pilih lagu dari 5 opsi, klik untuk lirik.
+- Fitur jadwal sholat, lirik, anime, dan lain-lain sudah memakai fallback multi-API dan error handling yang ramah.
+- Struktur kode, dependensi, dan dokumentasi sudah dirapikan untuk open source.
+
+> Lihat changelog di atas untuk fitur dan UX terbaru!
+
 > Dibuat dengan ❤️ oleh minggu dev.
