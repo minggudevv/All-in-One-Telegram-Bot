@@ -6,7 +6,9 @@ module.exports = (bot, userState) => {
         const chatId = msg.chat.id;
         const data = callbackQuery.data;
         if (data === 'fake_identity') {
+            let loadingMsg;
             try {
+                loadingMsg = await bot.sendMessage(chatId, '⏳ Loading...');
                 const res = await axios.get('https://randomuser.me/api/');
                 if (res.data && res.data.results && res.data.results[0]) {
                     const f = res.data.results[0];
@@ -21,10 +23,14 @@ module.exports = (bot, userState) => {
                     const caption = `Nama: ${nama}\nGender: ${gender}\nAlamat: ${alamat}\nKota: ${kota}\nNegara: ${negara}\nEmail: ${email}\nTelepon: ${telepon}\nTanggal Lahir: ${tgl}`;
                     await bot.sendPhoto(chatId, f.picture.large, { caption });
                 } else {
-                    bot.sendMessage(chatId, 'Gagal mendapatkan data identitas palsu.');
+                    await bot.sendMessage(chatId, 'Gagal mendapatkan data identitas palsu.');
                 }
             } catch (e) {
-                bot.sendMessage(chatId, 'Gagal menghubungi API identitas palsu.');
+                await bot.sendMessage(chatId, `❌ Gagal: ${e.message || 'Gagal menghubungi API identitas palsu.'}`);
+            } finally {
+                if (loadingMsg) {
+                    try { await bot.deleteMessage(chatId, loadingMsg.message_id); } catch {}
+                }
             }
         }
     });

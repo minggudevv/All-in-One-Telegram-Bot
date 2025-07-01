@@ -23,7 +23,7 @@ module.exports = (bot, userState) => {
                     inline_keyboard: [
                         [{ text: '❌ Angka', callback_data: 'pwopt_angka_on' }, { text: '❌ Simbol', callback_data: 'pwopt_simbol_on' }],
                         [{ text: '✅ Generate Password', callback_data: 'pwgen' }],
-                        [{ text: 'Batal', callback_data: 'main_menu' }]
+                        [{ text: '🏠 Kembali ke Home', callback_data: 'main_menu' }]
                     ]
                 }
             });
@@ -42,20 +42,30 @@ module.exports = (bot, userState) => {
                         { text: user.opts.simbol ? '✔️ Simbol' : '❌ Simbol', callback_data: `pwopt_simbol_${user.opts.simbol ? 'off' : 'on'}` }
                     ],
                     [{ text: '✅ Generate Password', callback_data: 'pwgen' }],
-                    [{ text: 'Batal', callback_data: 'main_menu' }]
+                    [{ text: '🏠 Kembali ke Home', callback_data: 'main_menu' }]
                 ]
             }, { chat_id: chatId, message_id: user.checklistMsgId });
         } else if (data === 'pwgen') {
             const user = userState[chatId];
             if (!user || user.state !== 'awaiting_password_opts') return;
-            let chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            if (user.opts.angka) chars += '0123456789';
-            if (user.opts.simbol) chars += '!@#$%^&*()_+-={}[]|:;<>,.?/~';
-            const length = user.length || 12;
-            let password = Array.from(crypto.randomFillSync(new Uint32Array(length))).map(x => chars[x % chars.length]).join('');
-            // Escape karakter HTML sebelum dikirim
-            const safePassword = escapeHtml(password);
-            await bot.sendMessage(chatId, `Password acak:\n<code>${safePassword}</code>`, { parse_mode: 'HTML' });
+            let loadingMsg;
+            try {
+                loadingMsg = await bot.sendMessage(chatId, '⏳ Loading...');
+                let chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                if (user.opts.angka) chars += '0123456789';
+                if (user.opts.simbol) chars += '!@#$%^&*()_+-={}[]|:;<>,.?/~';
+                const length = user.length || 12;
+                let password = Array.from(crypto.randomFillSync(new Uint32Array(length))).map(x => chars[x % chars.length]).join('');
+                // Escape karakter HTML sebelum dikirim
+                const safePassword = escapeHtml(password);
+                await bot.sendMessage(chatId, `Password acak:\n<code>${safePassword}</code>`, { parse_mode: 'HTML' });
+            } catch (e) {
+                await bot.sendMessage(chatId, `❌ Gagal: ${e.message || 'Gagal generate password.'}`);
+            } finally {
+                if (loadingMsg) {
+                    try { await bot.deleteMessage(chatId, loadingMsg.message_id); } catch {}
+                }
+            }
             // Hapus pesan checklist agar tidak dobel
             if (user.checklistMsgId) {
                 try { await bot.deleteMessage(chatId, user.checklistMsgId); } catch {}

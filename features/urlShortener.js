@@ -17,7 +17,7 @@ module.exports = (bot, userState) => {
             bot.sendMessage(chatId, `Silakan kirim URL yang ingin Anda pendekkan.`, {
                 reply_markup: {
                     inline_keyboard: [
-                        [{ text: '↩️ Kembali', callback_data: 'general_tools' }]
+                        [{ text: '🏠 Kembali ke Home', callback_data: 'main_menu' }]
                     ]
                 }
             });

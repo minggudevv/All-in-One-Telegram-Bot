@@ -14,7 +14,7 @@ module.exports = {
     backToHome: {
         reply_markup: {
             inline_keyboard: [
-                [{ text: '🏠 Kembali ke Menu Utama', callback_data: 'main_menu' }]
+                [{ text: '🏠 Kembali ke Home', callback_data: 'main_menu' }]
             ]
         }
     },
@@ -26,7 +26,7 @@ module.exports = {
                 [{ text: '🎵 Lirik Lagu', callback_data: 'tambahan_lirik' }],
                 [{ text: '🌦️ Cuaca', callback_data: 'tambahan_cuaca' }],
                 [{ text: '🕌 Jadwal Sholat', callback_data: 'tambahan_sholat' }],
-                [{ text: '🏠 Kembali ke Menu Utama', callback_data: 'main_menu' }]
+                [{ text: '🏠 Kembali ke Home', callback_data: 'main_menu' }]
             ]
         }
     }

@@ -1,6 +1,6 @@
 {
   "name": "all-in-one-telegram-bot",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -8,7 +8,7 @@
   },
   "keywords": [],
   "author": "minggudev",
-  "license": "ISC",
+  "license": "MIT",
   "description": "",
   "dependencies": {
     "axios": "^1.10.0",

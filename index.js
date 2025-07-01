@@ -15,8 +15,15 @@ const emailValidator = require('./features/securityTools/emailValidator');
 const linkScanner = require('./features/securityTools/linkScanner');
 
 // Pastikan hanya require tambahan:
+
 const tambahan = require('./features/tambahan');
 const menuManager = require('./menuManager');
+
+// Hapus loader downloader.js jika masih ada (fitur sudah dihapus)
+try {
+  require.resolve('./features/internet/downloader');
+  // Jika file masih ada, abaikan, tapi jangan require
+} catch (e) {}
 
 const log = debug('bot');
 
@@ -47,14 +54,14 @@ tambahan(bot);
 
 bot.onText(/\/start|\/home/, (msg) => {
     const chatId = msg.chat.id;
-    const welcomeMessage = "Selamat datang di All-in-One Bot! Silakan pilih kategori alat yang ingin Anda gunakan:";
+    const welcomeMessage = "Selamat datang di All-in-One Bot! Silakan pilih kategori tools yang ingin Anda gunakan:";
     bot.sendMessage(chatId, welcomeMessage, menuManager.mainMenu);
 });
 
 const downloadMenu = [
     [{ text: '🌍 Whois & IP Lookup', callback_data: 'whois_ip' }],
     [{ text: '🧑‍💻 Fake Identity Generator', callback_data: 'fake_identity' }],
-    [{ text: '🏠 Kembali ke Menu Utama', callback_data: 'main_menu' }]
+    [{ text: '🏠 Kembali ke Home', callback_data: 'main_menu' }]
 ];
 
 bot.on('callback_query', (callbackQuery) => {
@@ -70,8 +77,7 @@ bot.on('callback_query', (callbackQuery) => {
                 inline_keyboard: [
                     [{ text: '🔗 URL Shortener (TinyURL)', callback_data: 'url_shortener_tinyurl' }],
                     [{ text: '📷 QR Code Tool', callback_data: 'qr_code_tool' }],
-                    
-                    [{ text: '🏠 Kembali ke Menu Utama', callback_data: 'main_menu' }]
+                    [{ text: '🏠 Kembali ke Home', callback_data: 'main_menu' }]
                 ]
             }
         };
@@ -83,7 +89,7 @@ bot.on('callback_query', (callbackQuery) => {
                 inline_keyboard: [
                     [{ text: '📷 Buat QR Code', callback_data: 'generate_qr_code' }],
                     [{ text: '🔍 Baca QR Code', callback_data: 'read_qr_code' }],
-                    [{ text: '🏠 Kembali ke Menu Utama', callback_data: 'main_menu' }]
+                    [{ text: '🏠 Kembali ke Home', callback_data: 'main_menu' }]
                 ]
             }
         };
@@ -104,13 +110,17 @@ bot.on('callback_query', (callbackQuery) => {
                     [{ text: '🔑 Password Generator', callback_data: 'password_generator' }],
                     [{ text: '📧 Email Validator', callback_data: 'email_validator' }],
                     [{ text: '🔗 Link Scanner', callback_data: 'link_scanner' }],
-                    [{ text: '🏠 Kembali ke Menu Utama', callback_data: 'main_menu' }]
+                    [{ text: '🏠 Kembali ke Home', callback_data: 'main_menu' }]
                 ]
             }
         });
         return;
     } else if (data === 'tambahan_tools') {
-        bot.sendMessage(chatId, 'Pilih tools tambahan yang ingin Anda gunakan:', menuManager.tambahanMenu);
+        bot.editMessageText('Pilih tools tambahan yang ingin Anda gunakan:', {
+            chat_id: chatId,
+            message_id: msg.message_id,
+            reply_markup: menuManager.tambahanMenu.reply_markup
+        });
         return;
     }
     // Handler untuk masing-masing tools tambahan
@@ -123,7 +133,7 @@ bot.on('callback_query', (callbackQuery) => {
         return;
     }
     if (data === 'tambahan_lirik') {
-        bot.sendMessage(chatId, 'Ketik: lirik [artist] - [judul] untuk mencari lirik lagu.', menuManager.backToHome);
+        bot.sendMessage(chatId, 'Ketik: /lirik <judul lagu>\nContoh:\n/lirik Melukis Senja\n/lirik Demons', menuManager.backToHome);
         return;
     }
     if (data === 'tambahan_cuaca') {
@@ -134,15 +144,8 @@ bot.on('callback_query', (callbackQuery) => {
         bot.sendMessage(chatId, 'Ketik: sholat [kota] untuk jadwal sholat hari ini.', menuManager.backToHome);
         return;
     } else if (data === 'main_menu') {
-        const welcomeMessage = "Selamat datang di All-in-One Bot! Silakan pilih kategori alat yang ingin Anda gunakan:";
-        const options = {
-            reply_markup: {
-                inline_keyboard: [
-                    [{ text: '🛠️ Umum & Serbaguna', callback_data: 'general_tools' }]
-                ]
-            }
-        };
-        bot.editMessageText(welcomeMessage, { chat_id: chatId, message_id: msg.message_id, reply_markup: options.reply_markup });
+        const welcomeMessage = "Selamat datang di All-in-One Bot! Silakan pilih kategori tools yang ingin Anda gunakan:";
+        bot.editMessageText(welcomeMessage, { chat_id: chatId, message_id: msg.message_id, reply_markup: menuManager.mainMenu.reply_markup });
     }
 });
 

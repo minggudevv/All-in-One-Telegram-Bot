@@ -21,19 +21,25 @@ module.exports = (bot, userState) => {
                 delete userState[chatId];
                 return;
             }
+            let loadingMsg;
             try {
+                loadingMsg = await bot.sendMessage(chatId, '⏳ Loading...');
                 // Gunakan open API (disposable.debounce.io)
                 const res = await axios.get(`https://disposable.debounce.io/?email=${encodeURIComponent(text)}`);
                 if (res.data && res.data.disposable !== undefined) {
                     let valid = res.data.disposable === 'false';
-                    bot.sendMessage(chatId, `Email <b>${text}</b> ${(valid ? 'valid' : 'TIDAK valid/disposable')}.`, { parse_mode: 'HTML' });
+                    await bot.sendMessage(chatId, `Email <b>${text}</b> ${(valid ? 'valid' : 'TIDAK valid/disposable')}.`, { parse_mode: 'HTML' });
                 } else {
-                    bot.sendMessage(chatId, 'Tidak bisa memvalidasi email.');
+                    await bot.sendMessage(chatId, 'Tidak bisa memvalidasi email.');
                 }
             } catch (e) {
-                bot.sendMessage(chatId, 'Gagal menghubungi API validasi email.');
+                await bot.sendMessage(chatId, `❌ Gagal: ${e.message || 'Gagal menghubungi API validasi email.'}`);
+            } finally {
+                if (loadingMsg) {
+                    try { await bot.deleteMessage(chatId, loadingMsg.message_id); } catch {}
+                }
+                delete userState[chatId];
             }
-            delete userState[chatId];
         }
     });
 };

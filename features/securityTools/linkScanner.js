@@ -38,31 +38,40 @@ module.exports = (bot, userState) => {
                 delete userState[chatId];
                 return;
             }
-            // Coba urlscan.io
-            let result = await scanWithUrlscan(text);
-            if (result) {
-                let msgScan = `Hasil urlscan.io:\nURL: ${result.url}\nVerdict: ${result.verdict}\nTags: ${result.tags.join(', ') || '-'}\n`;
-                if (result.screenshot) {
-                    await bot.sendPhoto(chatId, result.screenshot, { caption: msgScan });
-                } else {
-                    await bot.sendMessage(chatId, msgScan);
-                }
-                delete userState[chatId];
-                return;
-            }
-            // Fallback ke phishtank
+            let loadingMsg;
             try {
-                const res = await axios.get(`https://checkurl.phishtank.com/checkurl/index.php?url=${encodeURIComponent(text)}&format=json`);
-                if (res.data && res.data.results && res.data.results.valid) {
-                    const isPhish = res.data.results.in_database && res.data.results.results && res.data.results.results.valid;
-                    bot.sendMessage(chatId, `Link <b>${text}</b> ${(isPhish ? 'berbahaya/phishing!' : 'aman (tidak terdeteksi phishing)')}.`, { parse_mode: 'HTML' });
-                } else {
-                    bot.sendMessage(chatId, 'Tidak bisa memeriksa link.');
+                loadingMsg = await bot.sendMessage(chatId, '⏳ Loading...');
+                // Coba urlscan.io
+                let result = await scanWithUrlscan(text);
+                if (result) {
+                    let msgScan = `Hasil urlscan.io:\nURL: ${result.url}\nVerdict: ${result.verdict}\nTags: ${result.tags.join(', ') || '-'}\n`;
+                    if (result.screenshot) {
+                        await bot.sendPhoto(chatId, result.screenshot, { caption: msgScan });
+                    } else {
+                        await bot.sendMessage(chatId, msgScan);
+                    }
+                    return;
+                }
+                // Fallback ke phishtank
+                try {
+                    const res = await axios.get(`https://checkurl.phishtank.com/checkurl/index.php?url=${encodeURIComponent(text)}&format=json`);
+                    if (res.data && res.data.results && res.data.results.valid) {
+                        const isPhish = res.data.results.in_database && res.data.results.results && res.data.results.results.valid;
+                        await bot.sendMessage(chatId, `Link <b>${text}</b> ${(isPhish ? 'berbahaya/phishing!' : 'aman (tidak terdeteksi phishing)')}.`, { parse_mode: 'HTML' });
+                    } else {
+                        await bot.sendMessage(chatId, 'Tidak bisa memeriksa link.');
+                    }
+                } catch (e) {
+                    await bot.sendMessage(chatId, `❌ Gagal: ${e.message || 'Gagal menghubungi API link scanner.'}`);
                 }
             } catch (e) {
-                bot.sendMessage(chatId, 'Gagal menghubungi API link scanner.');
+                await bot.sendMessage(chatId, `❌ Gagal: ${e.message || 'Gagal memproses link.'}`);
+            } finally {
+                if (loadingMsg) {
+                    try { await bot.deleteMessage(chatId, loadingMsg.message_id); } catch {}
+                }
+                delete userState[chatId];
             }
-            delete userState[chatId];
         }
     });
 };

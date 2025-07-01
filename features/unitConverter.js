@@ -107,7 +107,7 @@ module.exports = (bot, userState) => {
                         [{ text: '📏 Panjang', callback_data: 'convert_length' }],
                         [{ text: '⚖️ Berat', callback_data: 'convert_weight' }],
                         [{ text: '💱 Mata Uang', callback_data: 'convert_currency' }],
-                        [{ text: '🏠 Kembali ke Menu Utama', callback_data: 'main_menu' }]
+                        [{ text: '🏠 Kembali ke Home', callback_data: 'main_menu' }]
                     ]
                 }
             });
