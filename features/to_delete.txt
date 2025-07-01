@@ -1,0 +1,5 @@
+stickerMaker.js
+animeFinder.js
+lyricsFinder.js
+weather.js
+jadwalSholat.js
